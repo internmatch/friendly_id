@@ -45,7 +45,7 @@ module FriendlyId
 
     def delete_slugs
       validate_uses_slugs
-      Slug.destroy_all(["sluggable_type = ?", klass.to_s])
+      Slug.destroy_all(["sluggable_type = ?", klass.base_class.to_s])
       if column = friendly_id_config.cache_column
         update_all("#{column} = NULL")
       end
@@ -55,7 +55,7 @@ module FriendlyId
       conditions = ["created_at < ?", DateTime.now - days]
       if klass
         conditions[0] << " AND sluggable_type = ?"
-        conditions << klass.to_s
+        conditions << klass.base_class.to_s
       end
       Slug.all(:conditions => conditions).select(&:outdated?).map(&:destroy)
     end
