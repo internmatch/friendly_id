@@ -99,7 +99,7 @@ module FriendlyId
           slug.scope = send(friendly_id_config.scope).to_param
           similar = Slug.similar_to(slug)
           if !similar.empty?
-            slug.sequence = similar.first.sequence.succ
+            slug.sequence = similar.last.sequence.succ
           end
           slug.save!
         end
