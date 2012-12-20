@@ -61,8 +61,12 @@ module FriendlyId
         def find_one_with_slug
           sluggable_ids = sluggable_ids_for([id])
 
-          if sluggable_ids.size > 1 && fc.scope?
-            return relation.where(relation.primary_key.in(sluggable_ids)).first
+          if sluggable_ids.many? && fc.scope?
+            if relation.primary_key.respond_to?(:in)
+              return relation.where(relation.primary_key.in(sluggable_ids)).first
+            else
+              return relation.where(relation.primary_key => sluggable_ids).first
+            end
           end
 
           sluggable_id = sluggable_ids.first
@@ -83,7 +87,12 @@ module FriendlyId
           return find_some_using_slug(friendly_ids, unfriendly_ids) if use_slugs_table
           column     = fc.cache_column || fc.column
           friendly   = arel_table[column].in(friendly_ids)
-          unfriendly = arel_table[relation.primary_key.name].in unfriendly_ids
+          unfriendly = if relation.primary_key.respond_to?(:name)
+            arel_table[relation.primary_key.name].in unfriendly_ids
+          else
+            arel_table[relation.primary_key].in unfriendly_ids
+          end
+
           if friendly_ids.present? && unfriendly_ids.present?
             where(friendly.or(unfriendly))
           else
@@ -93,7 +102,11 @@ module FriendlyId
 
         def find_some_using_slug(friendly_ids, unfriendly_ids)
           ids = [unfriendly_ids + sluggable_ids_for(friendly_ids)].flatten.uniq
-          where(arel_table[relation.primary_key.name].in(ids))
+          if relation.primary_key.respond_to?(:name)
+            where(arel_table[relation.primary_key.name].in(ids))
+          else
+            where(arel_table[relation.primary_key].in(ids))
+          end
         end
 
         def sluggable_ids_for(ids)

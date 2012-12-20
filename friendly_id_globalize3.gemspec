@@ -22,6 +22,7 @@ Gem::Specification.new do |s|
   s.add_dependency "babosa", "~> 0.3.0"
   s.add_development_dependency "activerecord", "~> 3.0.0"
   s.add_development_dependency "mocha", "~> 0.9"
+  s.add_development_dependency "rake", "~> 0.9.2"
   s.add_development_dependency "sqlite3", "~> 1.3"
 
 end

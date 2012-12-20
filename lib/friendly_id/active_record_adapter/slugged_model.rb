@@ -15,6 +15,18 @@ module FriendlyId
           after_update :update_dependent_scopes
           protect_friendly_id_attributes
           extend FriendlyId::ActiveRecordAdapter::Finders unless FriendlyId.on_ar3?
+          def slug_with_rails_3_2_patch
+            unless (_slug = slug_without_rails_3_2_patch)
+              _slug = if friendly_id_config.class.locales_used?
+                slugs.where(:locale => (Thread.current[:globalize_locale] || ::I18n.locale)).first
+              else
+                slugs.first
+              end
+            end
+            _slug
+          end
+          alias_method_chain :slug, :rails_3_2_patch
+
         end
       end
 
