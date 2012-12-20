@@ -152,11 +152,7 @@ module FriendlyId
 
       # Are localed used by the slugs model?
       def locales_used?
-        unless @locales_used.nil?
-          @locales_used
-        else
-          @locales_used = ::Slug.table_exists? && ::Slug.column_names.map(&:to_sym).include?(:locale)
-        end
+        @locales_used ||= ::Slug.table_exists? && ::Slug.column_names.map(&:to_sym).include?(:locale)
       end
     end
 
